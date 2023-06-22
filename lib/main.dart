@@ -15,7 +15,11 @@ Future main() async {
 }
 
 mixin WebViewOpener {
-  void openWebView(BuildContext context, String url, {double heightFactor = 0.95}) {
+  void openWebView(
+    BuildContext context,
+    String url, {
+    double heightFactor = 0.95,
+  }) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -38,6 +42,7 @@ mixin WebViewOpener {
 class App extends StatelessWidget with WebViewOpener {
   @override
   Widget build(BuildContext context) {
+    //Va aggiornato il timstamp e l'hash senno ti fa rifare il login
     const url =
         "https://next2.colectivosvip.com/s5/1705/?sso_token=UtenteProva&sso_timestamp=1686650364953&sso_hash=646168e5c8daf216bc76d90206f443ed";
 
@@ -86,7 +91,8 @@ class _WebViewModalState extends State<_WebViewModal> with WebViewOpener {
         if (defaultTargetPlatform == TargetPlatform.android) {
           webViewController?.reload();
         } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-          webViewController?.loadUrl(urlRequest: URLRequest(url: await webViewController?.getUrl()));
+          webViewController?.loadUrl(
+              urlRequest: URLRequest(url: await webViewController?.getUrl()));
         }
       },
     );
@@ -113,15 +119,18 @@ class _WebViewModalState extends State<_WebViewModal> with WebViewOpener {
         onPermissionRequest: (controller, request) async {
           print("LOGGO: onPermissionRequest");
 
-//TODO grant solo se ho gli url che voglio io
-
-          return PermissionResponse(resources: request.resources, action: PermissionResponseAction.GRANT);
+          //TODO grant solo se ho gli url che voglio io
+          return PermissionResponse(
+              resources: request.resources,
+              action: PermissionResponseAction.GRANT);
         },
         shouldOverrideUrlLoading: (controller, navigationAction) async {
           print("LOGGO: shouldOverrideUrlLoading");
           var uri = navigationAction.request.url!;
 
-          if (uri.rawValue.contains('https://next2.colectivosvip.com/s5/1705/mobile/offer-details.action')) {
+          //Qui gestiscto i link col target blank ma apro solo quello delle offerte sennò va in loop infinito
+          if (uri.rawValue.contains(
+              'https://next2.colectivosvip.com/s5/1705/mobile/offer-details.action')) {
             openWebView(context, uri.rawValue, heightFactor: 0.9);
             return NavigationActionPolicy.CANCEL;
           }
